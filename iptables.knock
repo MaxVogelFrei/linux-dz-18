@@ -1,0 +1,34 @@
+*nat
+:PREROUTING ACCEPT [9:2100]
+:INPUT ACCEPT [9:2100]
+:OUTPUT ACCEPT [94:7504]
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING ! -d 192.168.0.0/16 -o eth0 -j MASQUERADE
+COMMIT
+
+*filter
+:INPUT ACCEPT [0:0]
+:TRAFFIC - [0:0]
+:INPUTSSH1 - [0:0]
+:INPUTSSH2 - [0:0]
+
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# TRAFFIC chain for Port Knocking. The correct port sequence in this example is 33333/TCP -> 22222/TCP -> 11111/TCP;
+-A INPUT -s 192.168.255.0/24 -j TRAFFIC
+-A TRAFFIC -p icmp --icmp-type any -j ACCEPT
+-A TRAFFIC -m state --state NEW -m tcp -p tcp --dport 22 -m recent --rcheck --seconds 30 --name SSH3 -j ACCEPT
+
+-A TRAFFIC -m state --state NEW -m tcp -p tcp -m recent --name SSH3 --remove -j DROP
+
+-A TRAFFIC -m state --state NEW -m tcp -p tcp --dport 11111 -m recent --rcheck --name SSH2 -j INPUTSSH2
+-A TRAFFIC -m state --state NEW -m tcp -p tcp -m recent --name SSH2 --remove -j DROP
+
+-A TRAFFIC -m state --state NEW -m tcp -p tcp --dport 22222 -m recent --rcheck --name SSH1 -j INPUTSSH1
+-A TRAFFIC -m state --state NEW -m tcp -p tcp -m recent --name SSH1 --remove -j DROP
+
+-A TRAFFIC -m state --state NEW -m tcp -p tcp --dport 33333 -m recent --name SSH1 --set -j DROP
+-A INPUTSSH1 -m recent --name SSH2 --set -j DROP
+-A INPUTSSH2 -m recent --name SSH3 --set -j DROP 
+-A TRAFFIC -j DROP
+COMMIT

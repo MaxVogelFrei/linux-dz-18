@@ -1,0 +1,66 @@
+---
+  - hosts: centralRouter
+    become: true
+    tasks:
+      - name: enable forward
+        sysctl:
+          name: net.ipv4.ip_forward
+          value: '1'
+          sysctl_set: yes
+          state: present
+          reload: yes
+
+      - name: no ZeroConf
+        lineinfile:
+          path: /etc/sysconfig/network
+          line: "NOZEROCONF=yes"
+          state: present
+
+      - name: install nmap
+        yum:
+          name: nmap
+          state: present
+
+      - name: no defroute
+        lineinfile:
+          path: /etc/sysconfig/network-scripts/ifcfg-eth0
+          line: 'DEFROUTE="NO"'
+          state: present
+        notify: restart network
+
+      - name: if config
+        template:
+          src: templates/static.j2
+          dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.dev }}"
+          owner: root
+          group: root
+          mode: 0644
+        with_items:
+          - '{{ static }}'
+        notify: restart network
+
+      - name: route to wan
+        template:
+          src: templates/route.j2
+          dest: "/etc/sysconfig/network-scripts/route-{{ item.dev }}"
+          owner: root
+          group: root
+          mode: 0644
+        with_items:
+          - '{{ routes }}'
+        notify: restart network
+
+      - name: knock script
+        copy:
+          src: knock.sh
+          dest: /opt/knock.sh
+          owner: vagrant
+          group: vagrant
+          mode: '0777'
+
+    handlers:
+      - name: restart network
+        systemd:
+          name: network
+          state: restarted
+

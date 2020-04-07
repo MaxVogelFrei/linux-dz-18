@@ -1,0 +1,11 @@
+static:
+  dev: eth1
+  ip: 192.168.255.1
+  mask: 255.255.255.252
+  gw:
+routes:
+  - dev: eth1
+    routes:
+      - route: 192.168.0.0/16
+        gw: 192.168.255.2
+

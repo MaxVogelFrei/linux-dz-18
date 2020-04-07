@@ -1,0 +1,63 @@
+---
+  - hosts: inetRouter2
+    become: true
+    tasks:
+      - name: enable forward
+        sysctl:
+          name: net.ipv4.ip_forward
+          value: '1'
+          sysctl_set: yes
+          state: present
+          reload: yes
+
+      - name: no ZeroConf
+        lineinfile:
+          path: /etc/sysconfig/network
+          line: "NOZEROCONF=yes"
+          state: present
+
+      - name: install iptables services
+        yum:
+          name: iptables-services
+          state: present
+
+      - name: iptables rules
+        copy:
+          src: iptables.nat
+          dest: /etc/sysconfig/iptables
+          owner: root
+          group: root
+          mode: 0644
+        notify: reload iptables
+
+      - name: if config
+        template:
+          src: templates/static.j2
+          dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.dev }}"
+          owner: root
+          group: root
+          mode: 0644
+        with_items:
+          - '{{ static }}'
+        notify: restart network
+
+      - name: route to lan
+        template:
+          src: templates/route.j2
+          dest: "/etc/sysconfig/network-scripts/route-{{ item.dev }}"
+          owner: root
+          group: root
+          mode: 0644
+        with_items:
+          - '{{ routes }}'
+
+    handlers:
+      - name: restart network
+        systemd:
+          name: network
+          state: restarted
+
+      - name: reload iptables
+        systemd:
+          name: iptables
+          state: restarted
