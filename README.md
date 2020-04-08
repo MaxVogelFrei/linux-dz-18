@@ -1,6 +1,10 @@
 # IPTABLES
-Сценарии iptables  
+
 ![схема](dz-18.png)
+
+## Задание
+Сценарии iptables  
+
 1) реализовать knocking port  
 - centralRouter может попасть на ssh inetrRouter через knock скрипт  
 2) добавить inetRouter2, который виден(маршрутизируется (host-only тип сети для виртуалки)) с хоста или форвардится порт через локалхост  
@@ -11,6 +15,7 @@
 * реализовать проход на 80й порт без маскарадинга  
 
 ## Настройка стенда
+
 ansible-playbook [filtering.yml](filtering.yml)  
 
 ## Knocking port
