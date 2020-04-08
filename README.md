@@ -10,7 +10,7 @@
   
 * реализовать проход на 80й порт без маскарадинга  
 
-настройка стенда  
+## Настройка стенда
 ansible-playbook [filtering.yml](filtering.yml)  
 
 ## Knocking port
