@@ -10,6 +10,9 @@
   
 * реализовать проход на 80й порт без маскарадинга  
 
+настройка стенда  
+ansible-playbook [filtering.yml](filtering.yml)  
+
 ## Knocking port
 
 port knocking реализуется набором правил [iptables](iptables.knock)  
