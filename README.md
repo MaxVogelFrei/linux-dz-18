@@ -13,13 +13,13 @@
 5) дефолт в инет оставить через inetRouter  
   
 * реализовать проход на 80й порт без маскарадинга  
-
 ## Настройка стенда
-
+Настройка стенда выполняется машиной provision  
 ansible-playbook [filtering.yml](filtering.yml)  
 
+для доступа к другим машинам необходим доступ на адресе хоста 192.168.18.1  
+к TCP портам: 30022, 31022, 32022, 33022  
 ## Knocking port
-
 port knocking реализуется набором правил [iptables](iptables.knock)  
 для адресов из 192.168.255.0/24  
 1)  при обращении к порту 33333/TCP адрес источника добавляется в список SSH1  
@@ -28,7 +28,6 @@ port knocking реализуется набором правил [iptables](ipta
 3) обращение к порту 11111/TCP от адреса из списка SSH2 переводит  
    в цепочку INPUTSSH2 и добавляет источник в список SSH3  
 4) доступ к порту 22/TCP из списка SSH3 разрешен  
-
 ```bash
 -A INPUT -s 192.168.255.0/24 -j TRAFFIC
 -A TRAFFIC -p icmp --icmp-type any -j ACCEPT
@@ -47,7 +46,6 @@ port knocking реализуется набором правил [iptables](ipta
 -A INPUTSSH2 -m recent --name SSH3 --set -j DROP 
 -A TRAFFIC -j DROP
 ```
-
 скрипт [knock.sh](knock.sh) использует утилиту nmap в цикле для обращения к портам хоста  
 демонстрация работы:  
 ```bash

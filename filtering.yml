@@ -97,7 +97,7 @@
           owner: root
           group: root
           mode: 0644
-        notify: reload iptables
+        notify: restart iptables
         
       - name: if config
         template:
