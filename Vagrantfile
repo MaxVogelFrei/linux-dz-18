@@ -32,6 +32,13 @@ MACHINES = {
                    {adapter: 2, virtualbox__intnet: "irouter2-net"},
                    {adapter: 3, ip: '192.168.18.13', netmask: "255.255.255.0"},
                 ]
+  },
+  :provision => {
+        :box_name => "centos/7",
+        :forward => {:guest => 22, :host => 34022},
+        :net => [
+                   {adapter: 2, ip: '192.168.18.2', netmask: "255.255.255.252"}
+                ]
   }
 }
 
@@ -55,7 +62,14 @@ Vagrant.configure("2") do |config|
           sed -i '65s/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
           systemctl restart sshd
         SHELL
-        
+        case boxname.to_s
+        when "provision"
+          box.vm.provision "shell", run: "always", inline: <<-SHELL
+            yum install ansible -y
+            cp /vagrant/* /root/
+            ansible-playbook filtering.yml
+            SHELL
+        end        
 #        case boxname.to_s
 #        when "inetRouter"
 #          box.vm.provision "shell", run: "always", inline: <<-SHELL

@@ -1,1 +1,0 @@
-{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/root/linux/linux-dz-18","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}}}
